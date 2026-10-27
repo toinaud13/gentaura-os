@@ -1,0 +1,46 @@
+# ============================================================================
+# GentAura Jalon 5 - Une instance = une VM crosvm, dans un scope cgroups v2
+# dedie (app-gentaura-vm-%i.scope) pour la KPI Resilience : une VM gourmande
+# ne doit voler aucune frame a Ash/Exo (MemoryHigh + CPUWeight).
+# Deploie dans ~/.config/systemd/user/ (ou /usr/lib/systemd/user via ebuild).
+# ============================================================================
+[Unit]
+Description=GentAura VM crosvm (%i) - pipeline zero-copy vers Exo
+After=gentaura-shell.service
+Requires=gentaura-shell.service
+BindsTo=gentaura-shell.service
+
+[Service]
+Type=simple
+Slice=app-gentaura.slice
+ScopePrefix=app-gentaura-vm-
+Environment=GENTAUTRA_IMG=/var/lib/gentaura/vm/rootfs.img
+Environment=GENTAUTRA_KERNEL=/var/lib/gentaura/vm/vmlinuz
+ExecStartPre=/usr/bin/install -d -m 0700 %t/gentaura-dmabuf
+ExecStart=/usr/bin/sh -c '\
+  exec crosvm run \
+    --kernel "${GENTAUTRA_KERNEL}" \
+    --cmdline "root=/dev/vda rw init=/lib/systemd/systemd quiet virtio_net.mac=9a:57:1a:b6:8e:4f" \
+    --disk-path "${GENTAUTRA_IMG}" --rw \
+    --socket "/run/gentaura/crosvm-%i" \
+    --vsock "cid=3,device=/dev/vhost-vsock" \
+    --mem 2G --cpus 2 \
+    --net "tap=false,mac=9a:57:1a:b6:8e:4f" \
+    --balloon --rng \
+    --gpu "context-types=cross-domain:virgl2,rutabaga-gfx=true" \
+    --wayland-sock="%t/wayland-0" \
+    shared-memory-dir=%t/gentaura-dmabuf'
+ExecStop=/usr/bin/crosvm stop /run/gentaura/crosvm-%i
+Restart=no
+KillMode=mixed
+TimeoutStopSec=10
+# --- KPI Resilience (PRD 4.) : plafond souple, priorite basse vs Ash ---
+MemoryHigh=1500M
+MemoryMax=1900M
+CPUWeight=50
+Nice=5
+OOMPolicy=stop
+InvocationId=
+
+[Install]
+WantedBy=default.target

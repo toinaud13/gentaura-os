@@ -1,0 +1,18 @@
+# ============================================================================
+# GentAura Jalon 5 - Profil de l'IMAGE INVITEE (VM crosvm), non de l'hote.
+# Philosophie : rootfs minimal, uniquement le strict necessaire pour que
+# sommelier/xwl + quelques apps rendent via Virtio-GPU cross-domain.
+# Herite la philosophie hote : Wayland pur, zero Xorg SYSTEMIQUE (xwl fournit
+# un XWayland confine dans la VM uniquement -> contrat WON'T HAVE respecte).
+# ============================================================================
+ARCH="amd64"
+CHOST="x86_64-pc-linux-gnu"
+CFLAGS="-O2 -pipe -march=x86-64-v2"
+CXXFLAGS="${CFLAGS}"
+# Pas de -X : l'invite n'installe JAMAIS xorg-server ; xterm est tire via
+# RDEPEND x11-libs/libXt seulement (client X vers xwl, jamais serveur).
+USE="wayland gles2 egl vulkan drm systemd virtio-network -X -bluetooth -gnome -kde -multilib"
+INPUT_DEVICES=""
+VIDEO_CARDS="virtio"        # pilote mesa virtio = chemin rutabaga cross-domain
+LINGUAS="fr en"
+ACCEPT_KEYWORDS="amd64"

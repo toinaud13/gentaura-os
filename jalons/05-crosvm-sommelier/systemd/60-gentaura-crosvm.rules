@@ -1,0 +1,11 @@
+# ============================================================================
+# GentAura Jalon 5 - Regles udev : acces hyperviseur + DRI pour le pipeline
+# cross-domain sans sudo. Deploiement : /etc/udev/rules.d/ (install script).
+# ============================================================================
+# KVM : groupe kvm, mode 0660
+KERNEL=="kvm", GROUP="kvm", MODE="0660", OPTIONS+="static_node=kvm"
+# vhost-vsock : canal rapide hote<->VM (TDD Section 2)
+KERNEL=="vhost-vsock", GROUP="vhost", MODE="0660", OPTIONS+="static_node=vhost-vsock"
+KERNEL=="vhost-net",   GROUP="vhost", MODE="0660", OPTIONS+="static_node=vhost-net"
+# GPU hote : renderD128 accessible aux groupes video/render (rutabaga import dmabuf)
+KERNEL=="renderD[0-9]*", GROUP="render", MODE="0660", OPTIONS+="static_node=renderD128"

@@ -62,9 +62,9 @@ emerge -av @gentaura-core
 |---|---|---|
 | **1** | [`jalons/01-socle-gentoo/`](jalons/01-socle-gentoo/) (install-stage1-chroot.sh, configure-chroot.sh, validate-stage1.sh) | TTY < 3 s, zéro X11, Mesa/PipeWire/NM OK |
 | **2** | [`jalons/02-chromium-ash-dev/`](jalons/02-chromium-ash-dev/) (run-stage2-build.sh, apply-gentaura-patches.sh, args.gn.dev, check-kernel-config.sh, validate-stage2.sh) | socket `$XDG_RUNTIME_DIR/wayland-0`, `foot` se connecte |
-| **3** | Bare-metal Ozone-DRM + `gentaura-shell.service` (Type=notify, `OOMScoreAdjust=-900`) | Ash plein écran KMS, libinput OK |
-| **4** | Démons `gentaura-bridge` + `gentaura-app-scanner` | jauges Wi-Fi/batterie live, apps Gentoo dans la Shelf |
-| **5** | `crosvm --gpu context-types=cross-domain:virgl2 --wayland-sock=…` + `sommelier` | fenêtre VM projetée en zero-copy dans Exo |
+| **3** | [`jalons/03-bare-metal-ozonedrm/`](jalons/03-bare-metal-ozonedrm/) (args.gn.drm, run-stage3-build.sh, deploy-target.sh, validate-stage3.sh) + `gentaura-shell.service` (Type=notify, `OOMScoreAdjust=-900`) | Ash plein écran KMS, libinput OK |
+| **4** | [`jalons/04-demons-cablage/`](jalons/04-demons-cablage/) (run-stage4.sh, smoke-bridge.sh, validate-stage4.sh) — démons `gentaura-bridge` + `gentaura-app-scanner` | jauges Wi-Fi/batterie live, apps Gentoo dans la Shelf |
+| **5** | [`jalons/05-crosvm-sommelier/`](jalons/05-crosvm-sommelier/) (run-stage5.sh : check→build→image→install→launch→smoke, validate-stage5.sh, kernel-stage5.config, guest-overlay/, docs/TROUBLESHOOTING.md) | fenêtre VM projetée en zero-copy DMABUF dans Exo, X11 confiné à l'invité |
 
 ⚠️ **Point de vigilance (stress-test final)** : ne jamais compiler
 `chromium-ash` sur la machine cible — voir [docs/BINHOST.md](docs/BINHOST.md).

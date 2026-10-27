@@ -1,0 +1,13 @@
+# ============================================================================
+# GentAura Jalon 5 - package.use de l'image invitee (voir TDD Section 5)
+# ============================================================================
+# Mesa : rendu GL vers le canal virtio-gpu (cross-domain), pas de GBM hote ici
+media-libs/mesa egl gles2 vulkan llvm-desktop gallium video_cards_virtio -X
+# Sommelier attend ces libs cote invite (injectees par stage5-image.sh sinon)
+dev-libs/wayland -doc
+x11-apps/xterm       -truetype sixel
+app-misc/foot        graphviz-scrollback
+sys-apps/systemd     pam -cryptsetup -efi -homectl -journal-upload -pwq -uap
+net-misc/openssh     -X
+# Interdictions explicites (verifiees par validate-stage5 DoD-5) :
+#   x11-base/xorg-server  <- JAMAIS emerge dans l'invite ni l'hote
