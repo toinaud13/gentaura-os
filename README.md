@@ -58,10 +58,10 @@ emerge -av @gentaura-core
 
 ## Démarrage rapide par jalons
 
-| Jalon | Objectif | Validation |
+| Jalon | Kit d'exécution | Validation |
 |---|---|---|
-| **1** | Socle Gentoo + noyau contrat (`merge_config.sh` avec `kernel/gentaura.config`) | TTY < 3 s, zéro X11, Mesa/PipeWire/NM OK |
-| **2** | Prototypage Chromium-Ash fenêtré sur le BINHOST | socket `$XDG_RUNTIME_DIR/wayland-0`, `foot` se connecte |
+| **1** | [`jalons/01-socle-gentoo/`](jalons/01-socle-gentoo/) (install-stage1-chroot.sh, configure-chroot.sh, validate-stage1.sh) | TTY < 3 s, zéro X11, Mesa/PipeWire/NM OK |
+| **2** | [`jalons/02-chromium-ash-dev/`](jalons/02-chromium-ash-dev/) (run-stage2-build.sh, apply-gentaura-patches.sh, args.gn.dev, check-kernel-config.sh, validate-stage2.sh) | socket `$XDG_RUNTIME_DIR/wayland-0`, `foot` se connecte |
 | **3** | Bare-metal Ozone-DRM + `gentaura-shell.service` (Type=notify, `OOMScoreAdjust=-900`) | Ash plein écran KMS, libinput OK |
 | **4** | Démons `gentaura-bridge` + `gentaura-app-scanner` | jauges Wi-Fi/batterie live, apps Gentoo dans la Shelf |
 | **5** | `crosvm --gpu context-types=cross-domain:virgl2 --wayland-sock=…` + `sommelier` | fenêtre VM projetée en zero-copy dans Exo |

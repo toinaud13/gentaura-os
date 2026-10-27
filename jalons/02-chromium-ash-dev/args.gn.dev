@@ -1,0 +1,59 @@
+# ============================================================================
+# GentAura - Jalon 2 : args.gn de PROTOTYPAGE fenêtré (hôte de dev / BINHOST)
+# Base = args.gn officiel de l'overlay (gentaura-base/chromium-ash/files/args.gn)
+# + overrides "prototype only" marqués [DEV]. A REJETER au Jalon 3 (bare-metal).
+# Injecté par run-stage2-build.sh dans out/GentAuraDev/args.gn
+# ============================================================================
+
+# --- 1. CIBLE ARCHITECTURALE (identique à la prod) ---
+target_os = "chromeos"
+is_chromeos_device = false        # toolchain système Gentoo autorisée
+use_ozone = true
+
+# --- 2. BACKEND MATÉRIEL ---
+ozone_auto_platforms = false
+ozone_platform_drm = true         # compilé, mais pas utilisé en mode fenêtré
+ozone_platform_headless = true
+ozone_platform_x11 = false        # BANNI (WON'T HAVE PRD)
+# [DEV] En prototypage, Ash se greffe sur le compositeur du bureau hôte ;
+# Exo reste créé en interne et écoute sur $XDG_RUNTIME_DIR (patch 01).
+# Le Jalon 3 remettra ozone_platform="drm" + cette ligne à false.
+ozone_platform = "wayland"
+ozone_platform_wayland = true     # [DEV] prototype only
+
+# --- 3. PILOTES GRAPHIQUES & MULTIMÉDIA ---
+use_egl = true
+use_vaapi = true
+enable_vulkan = true
+use_system_libdrm = true
+use_system_minigbm = true
+
+# --- 4. SERVICES SYSTÈME & AUDIO ---
+use_cras = false                  # CRAS Google désactivé -> ALSA/Pulse(PipeWire)
+use_alsa = true
+use_pulseaudio = true
+use_cups = false
+use_kerberos = false
+
+# --- 5. TOOLCHAIN & BUILD (spécificités BINHOST Gentoo) ---
+custom_toolchain = "//build/toolchain/linux/unbundle:default"   # clang/gcc système
+clang_use_chrome_plugins = false
+is_debug = false
+is_component_build = false        # sinon cible `ash` non produite standalone
+symbol_level = 0                  # économise ~40 Go disque + RAM au link
+blink_symbol_level = 0
+v8_symbol_level = 0
+dcheck_always_on = false
+enable_reporting = false
+enable_mse_mpeg2ts_stream_parser = true
+enable_hls_demuxer = true
+proprietary_codecs = true
+ffmpeg_branding = "Chrome"
+
+# --- 6. RÉSILIENCE LINK (stress-test 32 Go RAM, cf. docs/BINHOST.md) ---
+# Si ld.lld est OOM-killed (exit 137) sur machine 16 Go : décommenter.
+# ldflags = [ "-Wl,--reduce-memory-overheads", "-Wl,--gc-sections" ]
+
+# --- 7. ASH / EXO ---
+ash_enable_web_app_testing = true
+ozone_platform_gbm = true         # chemins dma-buf exercés dès le Jalon 2
