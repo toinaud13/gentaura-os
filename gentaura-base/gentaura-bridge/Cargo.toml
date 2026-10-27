@@ -1,0 +1,26 @@
+[package]
+name = "gentaura-bridge"
+version = "0.1.0"
+edition = "2021"
+description = "Micro-daemon D-Bus gateway: Ash (flimflam/PowerManager/SessionManager) -> NetworkManager/UPower/systemd-logind/PipeWire"
+license = "MIT"
+
+[[bin]]
+name = "gentaura-bridge"
+path = "src/main.rs"
+
+# ============================================================================
+# CONTRAT D'INTERFACE (TDD Partie 2, Section 4.A)
+# Le demon s'enregistre sur le bus SYSTEME D-Bus sous les noms EXACTS attendus
+# par le code C++ d'Ash (chromeos/ash/components/dbus/) :
+#   org.chromium.flimflam.Manager          <-> org.freedesktop.NetworkManager / net.connman.iwd
+#   org.chromium.PowerManager              <-> org.freedesktop.UPower & org.freedesktop.login1
+#   org.chromium.SessionManagerInterface   <-> validation immediate (PAM/greetd en amont)
+# ============================================================================
+
+[dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal"] }
+zbus = { version = "4", default-features = false, features = ["tokio"] }
+serde = { version = "1", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"

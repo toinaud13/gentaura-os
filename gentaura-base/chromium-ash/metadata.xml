@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<maintainer type="project">
+<email>arch@gentaura.dev</email>
+<name>GentAura Architecture Team</name>
+</maintainer>
+<longdescription lang="en">
+Ash/Aura/Exo window manager compiled from Chromium sources for bare-metal
+Gentoo via Ozone-DRM (KMS/GBM), no X11, no ChromeOS sysroot.
+</longdescription>
+<use>
+<flag name="ozone-drm">Enable the Ozone DRM platform (direct KMS scanout)</flag>
+<flag name="vaapi">Hardware video decode via libva</flag>
+<flag name="pulseaudio">Route audio through PipeWire-Pulse instead of CRAS</flag>
+</use>
+</pkgmetadata>

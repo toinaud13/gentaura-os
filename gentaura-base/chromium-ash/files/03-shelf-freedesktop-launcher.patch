@@ -1,0 +1,62 @@
+From: GentAura Architecture Team <arch@gentaura.dev>
+Subject: [PATCH 3/3] app_list: expose local IPC entry for gentaura-app-scanner
+
+Composant : chrome/browser/ui/app_list/
+Contrat   : TDD Partie 2, Section 3 - Patch n°3
+
+Comportement d'origine :
+  Le lanceur d'applications d'Ash (App List / Shelf) n'affiche que :
+    - les extensions Chrome,
+    - les PWA installes,
+    - les applications enregistrees via le daemon Crostini `garcon`.
+  Les paquets natifs Gentoo (.desktop dans /usr/share/applications) sont ignores.
+
+Modification architecturale GentAura :
+  1. Expose un point d'entree IPC local (socket Unix dedie, nomme sur le bus
+     D-Bus de session sous org.gentaura.AppLauncher) permettant au daemon
+     hote `gentaura-app-scanner` (cf. gentaura-base/gentaura-app-scanner/)
+     d'enregistrer dynamiquement des applications natives :
+        RegisterApp(aura_app_id, desktop_entry_path)
+        UnregisterApp(aura_app_id)
+        LaunchApp(aura_app_id)   <-- intercepte et relance via systemd-run
+  2. Au clic utilisateur dans Ash, l'appel LaunchApp est redirige vers le
+     scanner qui executa l'application avec :
+        WAYLAND_DISPLAY=wayland-0
+        GDK_BACKEND=wayland
+        QT_QPA_PLATFORM=wayland
+     dans une tranche Cgroup dediee `app-gentaura-<id>.scope`
+     (exigence NFR "Resilience" du PRD).
+
+Note de fusion : numeros de ligne indicatifs (base 132.0.x), apply -p1 --fuzz=3.
+
+--- a/chrome/browser/ui/app_list/app_list_syncable_service.cc
++++ b/chrome/browser/ui/app_list/app_list_syncable_service.cc
+@@ -XX,XX +XX,XX @@ void AppListSyncableService::AddOrUpdate(
+     const sync_pb::AppListSpecifics& app_list_specifics) {
+   // ... logique d'origine (extensions / PWA / garcon) ...
++
++  // --- GentAura: entree IPC pour le scanner natif --------------------------
++  // Les apps poussees par gentaura-app-scanner arrivent ici avec un
++  // aura_app_id prefixe "gentaura:" ; elles ne doivent JAMAIS etre
++  // synchronisees vers un serveur Google (vision "100% Local" du PRD).
++  if (base::StartsWith(app_list_specifics.aura_app_id(), "gentaura:",
++                       base::CompareCase::SENSITIVE)) {
++    local_registry_.Register(app_list_specifics);
++    return;  // No cloud sync for native Gentoo entries.
++  }
+ }
+ 
+--- a/chrome/browser/ui/app_list/ash/ash_app_launcher.cc
++++ b/chrome/browser/ui/app_list/ash/ash_app_launcher.cc
+@@ -XX,XX +XX,XX @@ void AshAppLauncher::Launch(const std::string& app_id,
+                              int event_flags,
+                              LaunchSource launch_source) {
++  // --- GentAura: delegation des apps natives au scanner --------------------
++  // Lancement via systemd-run --user --scope pour respecter la charte
++  // Cgroups v2 (isolation RAM/CPU des apps, KPI "Resilience").
++  if (base::StartsWith(app_id, "gentaura:", base::CompareCase::SENSITIVE)) {
++    gentaura::AppLauncherIpc::Get()->DispatchNativeLaunch(app_id);
++    return;
++  }
+   // ... chemin d'origine (extensions, PWA, garcon/Crostini) ...
+ }

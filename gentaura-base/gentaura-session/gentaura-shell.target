@@ -1,0 +1,5 @@
+[Unit]
+Description=GentAura graphical session target (Ash + Exo + daemons passerelles)
+Requires=gentaura-shell.service
+After=gentaura-shell.service
+BindsTo=graphical-session.target

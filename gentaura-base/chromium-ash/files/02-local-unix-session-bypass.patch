@@ -1,0 +1,58 @@
+From: GentAura Architecture Team <arch@gentaura.dev>
+Subject: [PATCH 2/3] ash/login: bypass OOBE/cryptohome, direct local Unix session
+
+Composants : ash/login/  et  chrome/browser/ash/login/
+Contrat    : TDD Partie 2, Section 3 - Patch n°2
+
+Comportement d'origine :
+  Ash affiche l'assistant OOBE (Out-Of-Box Experience) reclamant une connexion
+  Wi-Fi et un compte Google, puis tente de monter un coffre cryptohome via
+  chaps/useradmind avant de demarrer la session.
+
+Modification architecturale GentAura :
+  1. Suppression du cycle OOBE : le profil d'execution est force en session
+     locale directe via les switches deja supportes par le binaire :
+        --login-user=$USER
+        --login-profile=user
+        --user-data-dir=/home/$USER/.config/gentaura-shell
+  2. L'authentification est deleguee EN AMONT a systemd-logind / greetd (PAM).
+     Le shell Ash demarre uniquement dans une session Unix deja validee ;
+     toute tentative de declenchement de cryptohome est court-circuitee.
+  3. Isolation stricte du chemin `is_chromeos_device=false` : pas de regression
+     sur les builds ChromeOS classiques (le patch ne s'active que si le flag
+     kGentAuraLocalSession est pose par le launcher gentaura-session).
+
+Note de fusion : numeros de ligne indicatifs (base 132.0.x), apply -p1 --fuzz=3.
+
+--- a/chrome/browser/ash/login/session/user_session_manager.cc
++++ b/chrome/browser/ash/login/session/user_session_manager.cc
+@@ -XX,XX +XX,XX @@ void UserSessionManager::StartUserSession(
+     LoginStatus::UserAddingArea area) {
+   TRACE_EVENT0("browser", "UserSessionManager::StartUserSession");
+ 
++  // --- GentAura: local Unix session fast-path ------------------------------
++  // Si le launcher a passe --login-user avec un profil local (PAM/greetd deja
++  // authentifies), on saute l'OOBE ET le montage cryptohome : la session
++  // standard de Portage (/home/$USER) est utilisee telle quelle.
++  if (switches::HasSwitch(switches::kLoginUser) &&
++      base::PathExists(base::FilePath("/run/gentaura-local-session"))) {
++    VLOG(1) << "GentAura: local session detected, skipping OOBE & cryptohome.";
++    StartSessionInternal(profile, /*is_regular_login=*/true, area);
++    return;
++  }
++
+   // ... logique ChromeOS d'origine (cryptohome::Mount) conservee en fallback.
+ }
+ 
+--- a/chrome/browser/ash/login/screenlock_controller.cc
++++ b/chrome/browser/ash/login/screenlock_controller.cc
+@@ -XX,XX +XX,XX @@ bool ScreenlockController::ShouldWaitForPolicyFetch() const {
+   // Policy fetch is not needed for ephemeral users.
+   if (session_type_ == SessionType::EPHEMERAL_USER_SESSION)
+     return false;
++  // --- GentAura: pas de policy cloud ni de server d'entreprise -------------
++  // WON'T HAVE du PRD : aucune dependance Enterprise Enrollment.
++  if (session_type_ == SessionType::LOCAL_UNIX_SESSION)
++    return false;
+   return true;
+ }

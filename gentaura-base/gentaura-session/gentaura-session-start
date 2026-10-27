@@ -1,0 +1,24 @@
+#!/bin/sh
+# ============================================================================
+# GentAura - Jalon 3 : point d'entree de session (appele par greetd/TTY).
+# Authentification DEJA faite en amont par PAM (patch 02 du PRD) ; ce script
+# ne fait que poser l'environnement Wayland pur puis confier la main a systemd
+# --user qui demarre gentaura-shell.target (Type=notify, patch 01 sd_notify).
+# ============================================================================
+set -eu
+
+# Charte "Wayland pur" du profil aura : aucun DISPLAY, aucun X11.
+unset DISPLAY XAUTHORITY
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export WAYLAND_DISPLAY=wayland-0
+export GDK_BACKEND=wayland
+export QT_QPA_PLATFORM=wayland
+export MOZ_ENABLE_WAYLAND=1
+export XDG_CURRENT_DESKTOP=GentAura
+export DESKTOP_SESSION=gentaura
+
+# Marqueur lu par le patch C++ 02 (fast-path session locale Unix)
+sudo touch /run/gentaura-local-session 2>/dev/null || true
+
+# Demarrage de la session graphique via le manager utilisateur systemd.
+systemctl --user start gentaura-shell.target

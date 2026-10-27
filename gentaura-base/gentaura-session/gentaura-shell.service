@@ -1,0 +1,39 @@
+# ============================================================================
+# GentAura - Jalon 3 : unite systemd pilotant le shell Ash/Aura/Exo en
+# bare-metal (Ozone-DRM). Lancee par la session deja authentifiee PAM/greetd.
+# ============================================================================
+[Unit]
+Description=GentAura Ash/Aura/Exo Shell (Ozone-DRM bare-metal, Wayland-pur)
+Documentation=https://github.com/gentaura/gentaura-os/docs
+Requires=dbus.socket pipewire.service
+After=graphical.target dbus.socket pipewire.service
+# Le pont D-Bus doit exposer flimflam/power/session AVANT qu'Ash ne sonde.
+Before=gentaura-app-scanner.service
+
+[Service]
+Type=notify                      # prete quand Exo emet sd_notify READY=1 (patch 01)
+# Delegue l'ouverture de session a systemd-logind/greetd (patch 02 local Unix)
+ExecStart=/usr/bin/gentaura-shell \
+--login-user=%U \
+--login-profile=user \
+--user-data-dir=%h/.config/gentaura-shell \
+--ozone-platform=drm \
+--enable-features=UseOzonePlatform
+Environment=WAYLAND_DISPLAY=wayland-0
+Environment=XDG_RUNTIME_DIR=%t
+Environment=GDK_BACKEND=wayland
+Environment=QT_QPA_PLATFORM=wayland
+Environment=_JAVA_AWT_WM_NONREPARENTING=1
+# KPI PRD : Ash+Exo = priorite absolue -> jamais tue par l'OOM killer,
+# aucune frame perdue sur curseur/animations meme sous saturation (NFR Resilience).
+OOMScoreAdjust=-900
+MemoryMin=256M
+CPUWeight=1000
+Restart=on-failure
+RestartSec=2
+# Acces direct au DRM seat (KMS/GBM) delivre par logind
+PAMName=
+Slice=session.slice
+
+[Install]
+WantedBy=graphical-session.target

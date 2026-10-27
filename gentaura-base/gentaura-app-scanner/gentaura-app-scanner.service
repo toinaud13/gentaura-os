@@ -1,0 +1,13 @@
+[Unit]
+Description=GentAura native application indexer (Freedesktop .desktop -> Ash Shelf)
+PartOf=gentaura-shell.target
+After=gentaura-shell.service
+
+[Service]
+ExecStart=/usr/bin/gentaura-app-scanner
+Restart=on-failure
+# Tranches dediees pour les apps lancees depuis la Shelf (NFR Resilience PRD)
+Slice=app-gentaura.slice
+
+[Install]
+WantedBy=default.target

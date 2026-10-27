@@ -1,0 +1,4 @@
+# GentAura - acces hyperviseur sans sudo (Jalon 5)
+KERNEL=="kvm", GROUP="kvm", MODE="0660"
+KERNEL=="vhost-vsock", GROUP="kvm", MODE="0660"
+KERNEL=="vhost-net", GROUP="kvm", MODE="0660"

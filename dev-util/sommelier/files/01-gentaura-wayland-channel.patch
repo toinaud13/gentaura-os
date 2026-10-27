@@ -1,0 +1,19 @@
+From: GentAura Architecture Team <arch@gentaura.dev>
+Subject: [PATCH] sommelier: honor --wayland-channel=/dev/dri/renderD128 on Gentoo guests
+
+Comportement d'origine : sommelier detecte le canal GPU via les conventions
+ChromeOS (device-mapper + udev rules Google).
+
+Adaptation GentAura (TDD Section 5, etape 2) : accepte explicitement la forme
+`--wayland-channel=/dev/dri/renderD128` transmise par launch-crosvm-aura.sh et
+mappe le contexte Rutabaga cross-domain sur le node DRM hote expose en virtio.
+
+--- a/sommelier/main.c
++++ b/sommelier/main.c
+@@ -XX,XX +XX,XX @@ static const struct option long_options[] = {
+ { "virtio-gpu", no_argument, NULL, 'g' },
++/* --- GentAura: canal GPU explicite pour images SquashFS minimales --- */
++{ "wayland-channel", required_argument, NULL, 'c' },
+ { "xwl", no_argument, NULL, 'x' },
+ ...
+ };

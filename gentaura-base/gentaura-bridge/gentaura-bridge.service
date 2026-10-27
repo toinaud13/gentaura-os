@@ -1,0 +1,18 @@
+[Unit]
+Description=GentAura D-Bus bridge (flimflam/power/session -> NM/UPower/logind)
+After=dbus.service NetworkManager.service upower.service
+Before=gentaura-shell.service
+Documentation=https://github.com/gentaura/gentaura-os/docs
+
+[Service]
+Type=dbus
+BusName=org.chromium.flimflam
+ExecStart=/usr/bin/gentaura-bridge
+Restart=on-failure
+OOMScoreAdjust=-700
+NoNewPrivileges=yes
+ProtectSystem=strict
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

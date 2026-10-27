@@ -1,0 +1,43 @@
+# ============================================================================
+# GentAura - Liste des paquets obligatoires du socle (Jalon 1 & 3)
+# Ces paquets doivent imperativement etre instancies pour qu'une session
+# Ash/Exo demarre sur le bare-metal.
+# ============================================================================
+[system]
+	sys-kernel/gentoo-kernel
+	sys-apps/systemd
+	sys-apps/dbus
+	sys-process/audit
+
+[gentaura-core]
+	gentaura-base/chromium-ash
+	gentaura-base/gentaura-bridge
+	gentaura-base/gentaura-session
+	gentaura-base/gentaura-app-scanner
+
+[graphics]
+	media-libs/mesa
+	x11-libs/libdrm
+	media-libs/minigbm
+	dev-libs/glib
+
+[hardware-input]
+	dev-libs/libinput
+
+[audio]
+	media-video/pipewire
+	media-sound/pulse-daemon
+
+[network]
+	net-misc/networkmanager
+	net-wireless/iwd
+
+[power]
+	sys-power/upower
+
+[session-login]
+	app-console/greetd
+
+[phase2-virtualization]
+	dev-util/crosvm-aura
+	dev-util/sommelier

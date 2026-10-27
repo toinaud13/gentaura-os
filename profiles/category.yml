@@ -1,0 +1,6 @@
+---
+gentaura-base:
+  changelog: Initial import of GentAura gateway daemons and Ash monolith ebuild.
+dev-util:
+  changelog: crosvm-aura and sommelier packaging for Phase 2 virtualization.
+...

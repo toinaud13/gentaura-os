@@ -1,0 +1,31 @@
+# ============================================================================
+# GentAura - Profil systeme : default/linux/amd64/23.0/aura
+# Herite du profil systemd officiel de Gentoo et applique la charte graphique
+# "Wayland pur / Ozone-DRM" definie dans le PRD (Section 1 & 2).
+# ============================================================================
+inherit = parent
+use = \
+	wayland \
+	ozone-drm \
+	dma \
+	gbm \
+	egl \
+	gles2 \
+	vulkan \
+	opengl \
+	pipewire \
+	alsa \
+	systemd \
+	networkmanager \
+	dbus \
+	inputdevices \
+	udev \
+	seccomp \
+	kvm \
+	android \
+	crostini \
+	-X \
+	-gstreamer \
+	-traditionaldesktop \
+	-kde \
+	-gnome

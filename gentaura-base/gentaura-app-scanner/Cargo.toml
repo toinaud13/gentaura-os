@@ -1,0 +1,17 @@
+[package]
+name = "gentaura-app-scanner"
+version = "0.1.0"
+edition = "2021"
+description = "Freedesktop .desktop -> Ash Shelf/App List indexer (TDD Partie 2, Section 4.B)"
+license = "MIT"
+
+[[bin]]
+name = "gentaura-app-scanner"
+path = "src/main.rs"
+
+[dependencies]
+notify = "6"            # inotify des repertoires .desktop
+serde = { version = "1", features = ["derive"] }
+freedesktop-desktop-entry = "0.5"   # parse Exec=/Icon=/Name=/Categories=
+zbus = "4"              # IPC vers le point d'entree du patch 03 (org.gentaura.AppLauncher)
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "process"] }

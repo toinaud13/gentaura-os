@@ -1,0 +1,19 @@
+# ============================================================================
+# GentAura - USE flags specifiques par paquet (Profil aura)
+# ============================================================================
+
+# --- Le monolithe Ash/Aura/Exo : Wayland pur, Ozone-DRM, zero X11 ---
+gnome-base/gsettings-desktop-schemas wayland
+media-libs/mesa gbm vulkan wayland egl gles2
+x11-libs/libdrm libkms
+dev-libs/libinput eventcodes
+media-video/pipewire extra systemd
+media-sound/pulse-daemon glib
+net-misc/networkmanager iwd consoled
+sys-power/upower pm-utils
+app-console/greetd systemd
+gentaura-base/chromium-ash ozone-drm vaapi vulkan pulseaudio
+gentaura-base/gentaura-bridge dbus systemd
+gentaura-base/gentaura-app-scanner inotify
+dev-util/crosvm-aura gpu rutabaga pipewire balloon virtio-gpu
+dev-util/sommelier virtio-gpu xwl

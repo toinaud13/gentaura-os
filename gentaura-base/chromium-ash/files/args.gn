@@ -1,0 +1,40 @@
+# ============================================================================
+# GentAura - args.gn injecte par l'ebuild chromium-ash (TDD Partie 2, Section 3)
+# "Coeur nucleaire" : produit un binaire `chrome` agissant comme gestionnaire
+# de fenetres Ash + Aura + Exo sur le bare-metal Gentoo, sans outils ChromeOS.
+# ============================================================================
+
+# 1. CIBLE ARCHITECTURALE : Activer la pile Aura/Ash/Exo
+target_os = "chromeos"
+is_chromeos_device = false        # Permet d'utiliser la toolchain systeme Gentoo
+use_ozone = true
+
+# 2. BACKEND MATERIEL : Parler directement au noyau (KMS/GBM)
+ozone_auto_platforms = false
+ozone_platform = "drm"
+ozone_platform_drm = true
+ozone_platform_headless = true
+ozone_platform_x11 = false        # Banni (WON'T HAVE du PRD)
+ozone_platform_wayland = false    # Ash EST le serveur Wayland (via Exo), pas un client
+
+# 3. PILOTES GRAPHIQUES & MULTIMEDIA
+use_egl = true
+use_vaapi = true                  # Decodage materiel video (Intel/AMD)
+enable_vulkan = true
+use_system_libdrm = true
+use_system_minigbm = true         # Allocation des tampons graphiques GBM
+
+# 4. SERVICES SYSTEME & AUDIO (Raccordement au socle Gentoo)
+use_cras = false                  # On desactive le serveur audio Google CRAS...
+use_alsa = true                   # ...au profit de PipeWire-ALSA / Pulse
+use_pulseaudio = true
+use_cups = false                  # Mini-distro : pas de daemon d'impression lourd
+use_kerberos = false
+
+# 5. OUTILS DE BUILD (Toolchain Gentoo, pas de sysroot ChromeOS)
+is_clang = true
+proprietary_codecs = false
+enable_nacl = false
+chromeheadless_shell = false
+chrome_elf_build_stripped_main = false
+fatal_linker_warnings = false     # Toolchain systeme plus permissive que la sysroot

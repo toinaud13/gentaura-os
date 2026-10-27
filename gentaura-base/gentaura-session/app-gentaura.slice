@@ -1,0 +1,12 @@
+# ============================================================================
+# Tranche Cgroups v2 dediee aux applications natives lancees depuis la Shelf.
+# Isolation stricte vis-a-vis d'Ash (garde-fou RAM/CPU, cf. NFR "Resilience").
+# ============================================================================
+[Unit]
+Description=GentAura native applications slice
+Slice=user.slice
+
+[Slice]
+MemoryHigh=6G
+CPUWeight=50
+AllowedCPUs=
